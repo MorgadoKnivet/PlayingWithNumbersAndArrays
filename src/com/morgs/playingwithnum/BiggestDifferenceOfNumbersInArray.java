@@ -4,20 +4,27 @@ import java.util.Scanner;
 
 public class BiggestDifferenceOfNumbersInArray {
 
-    private static int numberOfPositions = 0;
-    private static int[] arrayOfNumbers;
-    private static int biggestDifference = 0;
-    private static boolean isAscending = true;
+    private BiggestDifferenceOfNumbersInArray() {
+        super();
+    }
+
+    private int numberOfPositions = 0;
+    private int[] arrayOfNumbers;
 
     public static void main(String[] args) {
         new BiggestDifferenceOfNumbersInArray().init();
     }
 
-    void init(){
+    void init() {
         readSizeOfArrayFromConsole();
         createArray();
         populateArrayFromConsole();
-        getTheBiggestDifferenceBetweenNumbers(arrayOfNumbers);
+
+        // PTI question A
+        int biggestDifference = getTheBiggestDifferenceBetweenNumbers();
+
+        // PTI question B
+        boolean isAscending = isArrayAscending();
 
         System.out.println("The biggest difference between number in array is : " + biggestDifference);
         System.out.print("the array is is ascending order ? " + isAscending);
@@ -36,45 +43,48 @@ public class BiggestDifferenceOfNumbersInArray {
     }
 
     private void readSizeOfArrayFromConsole() {
-        System.out.print("Enter the size of array ");
-        Scanner myInput = new Scanner(System.in);
-        numberOfPositions = myInput.nextInt();
+        try {
+            System.out.print("Enter the size of array - ");
+            Scanner myInput = new Scanner(System.in);
+            numberOfPositions = myInput.nextInt();
+            if (numberOfPositions == 0) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            System.out.print("Something wrong happened - you have to write a number bigger than 0");
+            System.exit(400);
+        }
     }
 
     private void createArray() {
         arrayOfNumbers = new int[numberOfPositions];
     }
 
-    private int getTheBiggestDifferenceBetweenNumbers(int[] arrayOfNumbers) {
+    private int getTheBiggestDifferenceBetweenNumbers() {
+        // In the real world, for example, a software to a bank, we will use libs like java.util.Array.
+        // int[] sortedArray = Arrays.stream(arrayOfNumbers).sorted().toArray();
+        int[] sortedArray = bubbleSort(arrayOfNumbers);
+        int firstNumber = sortedArray[0];
+        int lastNumber = sortedArray[sortedArray.length - 1];
+        return parseToPositiveNumber(firstNumber - lastNumber);
+    }
+
+    private boolean isArrayAscending() {
         for (int index = 0; index < arrayOfNumbers.length; index++) {
             if (handleIndexOutBoundException(arrayOfNumbers, index)) {
-                break;
+                return true;
             }
-            compareCurrentAndNextNumber(arrayOfNumbers, index);
+            int nextNumber = arrayOfNumbers[nextNumber(index)];
+            int currentNumber = arrayOfNumbers[index];
+            if (currentNumberBiggerThanNext(currentNumber, nextNumber)) {
+                return false;
+            }
         }
-        return biggestDifference;
+        return true;
     }
 
-    private void compareCurrentAndNextNumber(int[] arrayOfNumbers, int index) {
-        int nextNumber = arrayOfNumbers[nextNumber(index)];
-        int currentNumber = arrayOfNumbers[index];
-
-        getBiggestDifference(nextNumber, currentNumber);
-        checkIfArrayIsAscending(nextNumber, currentNumber);
-    }
-
-    private void checkIfArrayIsAscending(int nextNumber, int currentNumber) {
-        if (currentNumber > nextNumber && isAscending) {
-            isAscending = false;
-        }
-    }
-
-    private void getBiggestDifference(int nextNumber, int currentNumber) {
-        int result = currentNumber - nextNumber;
-        result = parseToPositiveNumber(result);
-        if (result > biggestDifference) {
-            biggestDifference = result;
-        }
+    private boolean currentNumberBiggerThanNext(int currentNumber, int nextNumber) {
+        return currentNumber > nextNumber;
     }
 
     private int parseToPositiveNumber(int result) {
@@ -90,5 +100,22 @@ public class BiggestDifferenceOfNumbersInArray {
 
     private int nextNumber(int index) {
         return index + 1;
+    }
+
+    int[] bubbleSort(int[] arrayOfNumbers) {
+        int[] arr = arrayOfNumbers.clone();
+        int n = arr.length;
+        int temp = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 1; j < (n - i); j++) {
+                if (arr[j - 1] > arr[j]) {
+                    temp = arr[j - 1];
+                    arr[j - 1] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+
+        return arr;
     }
 }
